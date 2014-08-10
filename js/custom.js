@@ -438,7 +438,7 @@ function displayAllSchemas(data, vaultId) {
 		debugLog('Schema found', data.schemas[i].name);
 
 		//Add HTML for each schema that allows for more details when the displaySchemaDetails callback executes
-		jQuery('.schemas .content').append("<div class='schema' id='schema-" + data.schemas[i].id + "' data-id='" + data.schemas[i].id + "' data-vault-id='" + vaultId + "'><div><a href='#' class='title'><span class='glyphicon glyphicon-book'></span> " + data.schemas[i].name + "</a></div><div class='details'></div></div>");
+		jQuery('.schemas .content').append("<div class='schema' id='schema-" + data.schemas[i].id + "' data-id='" + data.schemas[i].id + "' data-vault-id='" + vaultId + "'><div><a href='#' class='title'><span class='glyphicon glyphicon-book'></span> " + data.schemas[i].name + "</a></div><div class='options'><a href='#' class='delete'><span class='glyphicon glyphicon-trash'>Delete</span></a></div><div class='details'></div></div>");
 
 		//lookup the schemda details
 		tvExplorer.schemas.get(vaultId, data.schemas[i].id, displaySchemaDetails);
@@ -464,7 +464,7 @@ function displaySchemaDetails(data) {
 jQuery('.vaults .content').on('click', 'a.vault', function() {
 	var vaultId = jQuery(this).data('id');
 	var vaultName = jQuery(this).html();
-
+	
 
 	//Clear out the list of schemas and documents if this is the first page
 	jQuery('.schemas .content').html("");
@@ -691,6 +691,53 @@ jQuery('.schemas .content').on('click', 'a.title', function() {
 	return false;
 });
 
+
+
+/**
+ * Removes the contents of a schema when a .delete link is clicked.
+ * Use "on", instead of "click" so it'll bind to newly created elements.
+ */
+jQuery('.schemas .content').on('click', 'a.delete', function() {
+	//Get the details from the parent div
+	var schemaId = jQuery(this).closest('.schema').data('id');
+	var vaultId = jQuery(this).closest('.schema').data('vaultId');
+
+	debugLog('Schema contents', 'Getting the contents of schema: ' + schemaId + ' from vault: ' + vaultId);
+	
+	if (confirm("Are you sure you'd like to delete this Schema?\n" + schemaId)) {
+		debugLog('Schema delete', 'Confirmed deleting the schema: ' + schemaId + ' from vault: ' + vaultId);
+
+		/**
+		 * Execute the function to delete the schema within the vault based on the id of the link clicked.
+		 * Wrap deleteDocument in an anonymous callback function so we can pass the schemaId as well as 
+		 * accept data from the API response.
+		 */
+		tvExplorer.schemas.delete(vaultId, schemaId, function(data) {
+			deleteSchema(data, schemaId);
+		});
+		} else {
+			debugLog('Schema delete rejected', 'Aborting delete');
+		}
+	
+		return false;
+});
+
+
+/**
+ * Handles the deletion of a schema.
+ * @param {string} data The data from the apiRequest.
+ * @param {string} schemaId The Id of the document deleted.
+ * @returns {undefined}
+ */
+function deleteSchema(data, schemaId) {
+	debugLog('Schema deleted', data);
+
+	//Remove it from the list
+	jQuery('#schema-' + schemaId).remove();
+}
+
+
+
 /**
  * Handles the display of a document. Shows the contents as
  * modal or inline, depending on the switch.
@@ -699,7 +746,7 @@ jQuery('.schemas .content').on('click', 'a.title', function() {
  */
 function displaySchema(data) {
 	debugLog('Schema contents received', data);
-
+	
 	var schemaId = data.schema.id;
 	var vaultId = data.schema.vault_id;
 
