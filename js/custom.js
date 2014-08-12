@@ -702,14 +702,14 @@ jQuery('.schemas .content').on('click', 'a.delete', function() {
 	var schemaId = jQuery(this).closest('.schema').data('id');
 	var vaultId = jQuery(this).closest('.schema').data('vaultId');
 
-	debugLog('Schema contents', 'Getting the contents of schema: ' + schemaId + ' from vault: ' + vaultId);
+	debugLog('Schema contents', 'Deleting the schema: ' + schemaId + ' from vault: ' + vaultId);
 	
 	if (confirm("Are you sure you'd like to delete this Schema?\n" + schemaId)) {
 		debugLog('Schema delete', 'Confirmed deleting the schema: ' + schemaId + ' from vault: ' + vaultId);
 
 		/**
 		 * Execute the function to delete the schema within the vault based on the id of the link clicked.
-		 * Wrap deleteDocument in an anonymous callback function so we can pass the schemaId as well as 
+		 * Wrap deleteSchema in an anonymous callback function so we can pass the schemaId as well as 
 		 * accept data from the API response.
 		 */
 		tvExplorer.schemas.delete(vaultId, schemaId, function(data) {
@@ -726,7 +726,7 @@ jQuery('.schemas .content').on('click', 'a.delete', function() {
 /**
  * Handles the deletion of a schema.
  * @param {string} data The data from the apiRequest.
- * @param {string} schemaId The Id of the document deleted.
+ * @param {string} schemaId The Id of the schema to be deleted.
  * @returns {undefined}
  */
 function deleteSchema(data, schemaId) {
